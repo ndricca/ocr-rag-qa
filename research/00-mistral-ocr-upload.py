@@ -4,6 +4,11 @@ from argparse import ArgumentParser
 
 from mistralai import Mistral, OCRResponse
 
+from utils.logger import filter_loggers
+from utils.ocr import get_combined_markdown
+
+filter_loggers({'httpcore': 'ERROR'})
+
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -63,18 +68,18 @@ if __name__ == "__main__":
         print("Please provide a file path using the --file argument or a file ID using the --file_id argument.")
         exit(1)
 
-    if not os.path.exists(file_path):
-        print(f"The file {file_path} does not exist.")
-        exit(1)
-
     # Upload the file
     if file_id:
         try:
             uploaded_pdf = client.files.retrieve(file_id=file_id)
+            logger.debug("File retrieved successfully")
         except Exception as e:
             logger.error(f"Error retrieving file with id {file_id}: {e}")
             exit(1)
     elif file_path:
+        if not os.path.exists(file_path):
+            print(f"The file {file_path} does not exist.")
+            exit(1)
         uploaded_pdf = client.files.upload(
             file={
                 "file_name": os.path.basename(file_path),
@@ -82,10 +87,10 @@ if __name__ == "__main__":
             },
             purpose="ocr"
         )
+        # Get the file ID
+        file_id = uploaded_pdf.id
+        logger.info(f"File uploaded successfully with ID: {file_id}")
 
-    # Get the file ID
-    file_id = uploaded_pdf.id
-    logger.info(f"File uploaded successfully with ID: {file_id}")
 
     # Get the file URL
     signed_url = client.files.get_signed_url(file_id=file_id)
