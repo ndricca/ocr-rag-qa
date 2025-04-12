@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 from mistralai import Mistral
 
 from utils.logger import filter_loggers
+from utils.mistral_handler import MistralCompletionHandler
 
 filter_loggers({'httpcore': 'ERROR'})
 
@@ -12,8 +13,6 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 api_key = os.environ["MISTRAL_API_KEY"]
-
-client = Mistral(api_key=api_key)
 
 parser = ArgumentParser(description="Upload a file to Mistral for OCR processing.")
 parser.add_argument('--file_id', type=str, help="File ID to use for OCR")  # 9d277797-a704-406c-bd99-a9803d0cf8f5
@@ -36,16 +35,17 @@ if __name__ == "__main__":
     args = parser.parse_args()
     file_id = args.file_id
     model = args.model
+    m_handler = MistralCompletionHandler(model=model)
 
     try:
-        uploaded_pdf = client.files.retrieve(file_id=file_id)
+        uploaded_pdf = m_handler.client.files.retrieve(file_id=file_id)
         logger.debug("File retrieved successfully")
     except Exception as e:
         logger.error(f"Error retrieving file with id {file_id}: {e}")
         exit(1)
 
     # Get the file URL
-    signed_url = client.files.get_signed_url(file_id=file_id)
+    signed_url = m_handler.client.files.get_signed_url(file_id=file_id)
 
     # Define the messages for the chat
     for question in QUESTIONS:
@@ -75,8 +75,7 @@ if __name__ == "__main__":
         ]
 
         # Get the chat response
-        chat_response = client.chat.complete(
-            model=model,
+        chat_response = m_handler._complete_with_retry(
             messages=messages
         )
 
