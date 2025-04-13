@@ -31,7 +31,7 @@ class MistralCompletionHandler:
         self.tokens_since_last_request += response.usage.total_tokens
         return response
 
-    def _complete_with_retry(self, messages: list[dict], **chat_complete_kwargs) -> ChatCompletionResponse:
+    def complete_with_retry(self, messages: list[dict], **chat_complete_kwargs) -> ChatCompletionResponse:
         """
         Complete the chat with the given messages and parameters.
 
@@ -58,7 +58,7 @@ class MistralCompletionHandler:
                 waiting_time = time.time() - self.last_request_time if self.last_request_time is not None else 60
                 time.sleep(waiting_time)
                 self.tokens_since_last_request = 0
-                return self._complete_with_retry(messages, **chat_complete_kwargs)
+                return self.complete_with_retry(messages, **chat_complete_kwargs)
             else:
                 # if the error is not due to token limit, raise the error
                 raise e

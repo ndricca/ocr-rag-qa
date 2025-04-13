@@ -48,7 +48,8 @@ if __name__ == "__main__":
     signed_url = m_handler.client.files.get_signed_url(file_id=file_id)
 
     # Define the messages for the chat
-    for question in QUESTIONS:
+    output = {}
+    for i, question in enumerate(QUESTIONS):
         messages = [
             {
                 "role": "system",
@@ -75,10 +76,16 @@ if __name__ == "__main__":
         ]
 
         # Get the chat response
-        chat_response = m_handler._complete_with_retry(
-            messages=messages
-        )
+        chat_response = m_handler.complete_with_retry(messages=messages)
 
         # Print the content of the response
         answer = chat_response.choices[0].message.content
-        logger.info(f'# Question: "{question}"\n# Answer: "{answer}"\n')
+        logger.info(f'# Question {i:02}: "{question}"\n# Answer: "{answer}"\n')
+        output.append({
+            "id": i,
+            "question": question,
+            "answer": answer
+        })
+
+    # Save the output to a JSON file
+    output_file = f"tmp/qa_doc_understanding_{file_id}_answers.json"
