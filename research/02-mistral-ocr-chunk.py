@@ -1,15 +1,14 @@
-import copy
+import json
 import logging
+import re
 from argparse import ArgumentParser
-from typing import Iterable
+from enum import StrEnum
 
-import markdownify
-from unstructured.chunking.title import chunk_by_title
-from unstructured.chunking.basic import chunk_elements
-from unstructured.documents.elements import Table, Element, Text
-from unstructured.partition.md import partition_md
+from mistralai import OCRResponse
+from pydantic import BaseModel, Field
 
 from utils.logger import filter_loggers, LOG_CONFIG
+from utils.mistral_handler import MistralCompletionHandler
 
 filter_loggers({'httpcore': 'ERROR', 'httpx': 'ERROR'})
 logging.basicConfig(**LOG_CONFIG)
@@ -17,56 +16,113 @@ logging.basicConfig(**LOG_CONFIG)
 logger = logging.getLogger(__name__)
 
 parser = ArgumentParser(description="Process Mistral OCR output to create chunks.")
-# parser.add_argument('--processed_file', type=str, help="Path to the processed file")  # data/processed/ocr_result_9d277797-a704-406c-bd99-a9803d0cf8f5.json
-parser.add_argument('--md_file', type=str,
-                    help="Path to the markdown file")  # data/processed/ocr_result_9d277797-a704-406c-bd99-a9803d0cf8f5.md
+parser.add_argument('--ocr_output_file', type=str,
+                    help="Path to the OCR output file")  # data/processed/ocr_result_9d277797-a704-406c-bd99-a9803d0cf8f5.json
+parser.add_argument('--model', type=str, help="Mistral model to use for chunking", default='mistral-small-latest',
+                    required=False)  # mistral-small-latest
 
 
-def table_to_md(part: Table) -> Text:
+class ChunkingEvaluation(BaseModel):
     """
-    Convert a table element text to markdown.
+    Class to evaluate the chunking process.
+
+    Contains the internal reasoning needed to check if the second page continues the first one and is_continuing boolean indicating if the text continues.
     """
-    # Convert the table element to a markdown well-formatted table (string)
-    md_table_text = markdownify.markdownify(part.metadata.text_as_html)
-    new_part = Text(text=md_table_text, metadata=part.metadata)
-    return new_part
+    internal_reasoning: str = Field(..., description="Reason for continuing text across chunks or not.")
+    is_continuing: bool = Field(..., description="True if the text in second page is the continuation of the what's in the first page. False otherwise.")
 
 
-def fix_tables_before_chunking(elements: list[Element]) -> Iterable[Element]:
-    for e in elements:
-        if isinstance(e, Table):
-            yield table_to_md(e)
+class ChunkMetadata(BaseModel):
+    """
+    Class to represent metadata for a chunk.
+
+    Contains the IDs of the pages that are part of this chunk.
+    """
+    ids: list[int] = Field(..., description="List of page IDs that are part of this chunk.")
+
+
+class Chunk(BaseModel):
+    """
+    Class to represent a chunk of text.
+
+    Contains the text, metadata, and the chunk number.
+    """
+    num: int = Field(..., description="Chunk number")
+    text: str = Field(..., description="Text of the chunk")
+    metadata: ChunkMetadata = Field(..., description="Metadata associated with the chunk")
+
+
+def chunk_ocr_pages_using_mistral_check(ocr_response: OCRResponse, m_handler: MistralCompletionHandler) -> list[Chunk]:
+    """
+    For each chunk - excluding the first - check if current and previous chunk should be merged into one.
+    Check is done by calling the Mistral API with the text of both chunks.
+    If the API returns a positive response, update previous chunk with current chunk text.
+    """
+    chunks = []
+    for page in ocr_response.pages:
+        if len(chunks) == 0:
+            # create the first chunk
+            chunks.append(Chunk(num=len(chunks), text=page.markdown, metadata=ChunkMetadata(ids=[page.index])))
+            continue
+        messages = [
+            {
+                "role": "system",
+                "content": """Compare the text extracted from the following two pages and determine if they should be merged into one chunk.
+You want to merge the two page if and only if what you see at the top of the second page is a continuation of what you see at the end of the first page, for example:
+1. A table that is split into two pages
+2. A continuing list
+3. A sentence in a paragraph which starts in the first page and continues in the second page
+
+Pages with similar topics but not continuing text should be kept separate.
+Pages are separated by triple tilde.
+"""
+            },
+            {
+                "role": "user",
+                "content": f"""
+First page:
+~~~~
+{chunks[-1].text}
+~~~~
+
+
+
+Second page:
+~~~~
+{page.markdown}
+~~~~
+"""
+            }
+        ]
+        cont_response = m_handler.invoke_with_retry("parse", messages, response_format=ChunkingEvaluation, temperature=0)
+        continuing_evaluation: ChunkingEvaluation = cont_response.choices[0].message.parsed
+        logger.debug(f"Chunking evaluation response: {continuing_evaluation.model_dump()}")
+        if continuing_evaluation.is_continuing:
+            # merge the two chunks
+            chunks[-1].text += " " + page.markdown
+            chunks[-1].metadata.ids.append(page.index)
         else:
-            yield e
+            # add the new chunk
+            chunks.append(Chunk(num=len(chunks), text=page.markdown, metadata=ChunkMetadata(ids=[page.index])))
+    return chunks
 
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    md_file = args.md_file
+    ocr_output_file = args.ocr_output_file
+    model = args.model
 
-    logger.info(f'Partitioning markdown file "{md_file}"')
-    # partition_md is a function that partitions a markdown file into its constituent elements
-    # it internally uses the markdown library to parse the file and convert it into HTML
-    # then it uses the partition_html function to partition the HTML into its constituent elements
-    partition_list = partition_md(md_file)
+    m_handler = MistralCompletionHandler(model=model)
 
+    with open(ocr_output_file, "r", encoding='utf-8') as jf:
+        ocr_response = OCRResponse(**json.load(jf))
+
+    # merge pages
+    chunked_docs = chunk_ocr_pages_using_mistral_check(ocr_response, m_handler)
     # checks on partition list
-    max_part = max(partition_list, key=lambda x: len(x.text))
+    max_part = max(chunked_docs, key=lambda x: len(x.text))
     logger.info(f"max text length: {len(max_part.text)}")
     logger.debug(f"max text is in partition element with id {max_part.id}")
-    logger.debug(f"max text is a {max_part.__class__.__name__} element")
-    max_part_text = table_to_md(max_part).text if isinstance(max_part, Table) else max_part.text
-    logger.debug(f"max text is what follows: \n{max_part_text}")
-
-    # chunking
-    fixed_partition_list = list(fix_tables_before_chunking(partition_list))
-    chunk_list = chunk_elements(fixed_partition_list,  include_orig_elements=True,
-                                max_characters=5000, new_after_n_chars=2500)
-    chunk_list = chunk_by_title(fixed_partition_list, combine_text_under_n_chars=2000, include_orig_elements=True,
-                                max_characters=5000, multipage_sections=True)
-
-    for part in chunk_list:
-        print("#" * 50)
-        print(part.text)
+    logger.debug(f"max text is what follows: \n{max_part.text}")
 
 

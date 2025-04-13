@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+from typing import Literal
 
 import mistralai
 from mistralai import Mistral, ChatCompletionResponse
@@ -18,24 +19,44 @@ class MistralCompletionHandler:
         self.last_request_time: float | None = None
         self.tokens_since_last_request = 0
 
+    def update_state(self, response: ChatCompletionResponse):
+        """
+        Update the state of the handler with the response from the Mistral API.
+
+        Parameters:
+            response (ChatCompletionResponse): The response from the Mistral API.
+
+        """
+        self.token_usage['total_tokens'] += response.usage.total_tokens
+        self.token_usage['prompt_tokens'] += response.usage.prompt_tokens
+        self.token_usage['completion_tokens'] += response.usage.completion_tokens
+        self.last_request_time = time.time()
+        self.tokens_since_last_request += response.usage.total_tokens
+
     def _complete(self, messages: list[dict], **chat_complete_kwargs) -> ChatCompletionResponse:
         response = self.client.chat.complete(
             model=self.model,
             messages=messages,
             **chat_complete_kwargs
         )
-        self.token_usage['total_tokens'] += response.usage.total_tokens
-        self.token_usage['prompt_tokens'] += response.usage.prompt_tokens
-        self.token_usage['completion_tokens'] += response.usage.completion_tokens
-        self.last_request_time = time.time()
-        self.tokens_since_last_request += response.usage.total_tokens
+        self.update_state(response)
         return response
 
-    def complete_with_retry(self, messages: list[dict], **chat_complete_kwargs) -> ChatCompletionResponse:
+    def _parse(self, messages: list[dict], **chat_parse_kwargs) -> ChatCompletionResponse:
+        response = self.client.chat.parse(
+            model=self.model,
+            messages=messages,
+            **chat_parse_kwargs
+        )
+        self.update_state(response)
+        return response
+
+    def invoke_with_retry(self, method: Literal["complete", "parse"], messages: list[dict], **chat_complete_kwargs) -> ChatCompletionResponse:
         """
         Complete the chat with the given messages and parameters.
 
         Args:
+            method: The method to invoke, either "complete" or "parse".
             messages: List of message dictionaries.
             *chat_complete_kwargs: Additional parameters for chat completion.
 
@@ -48,7 +69,13 @@ class MistralCompletionHandler:
                 logger.warning(f"Rate limit exceeded. Sleeping for {self.rps_limit - elapsed_time:.2f} seconds.")
                 time.sleep(self.rps_limit - elapsed_time)
         try:
-            response = self._complete(messages, **chat_complete_kwargs)
+            match method:
+                case "complete":
+                    response = self._complete(messages, **chat_complete_kwargs)
+                case "parse":
+                    response = self._parse(messages, **chat_complete_kwargs)
+                case _:
+                    raise ValueError(f"Invalid method: {method}. Use 'complete' or 'parse'.")
         except mistralai.models.sdkerror.SDKError as e:
             # if new token + tokens since last request token has become bigger than tpm_limit, wait for a minute since
             # last request self.last_request_time and retry the function

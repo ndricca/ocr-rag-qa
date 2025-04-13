@@ -77,7 +77,7 @@ if __name__ == "__main__":
         ]
 
         # Get the chat response
-        chat_response = m_handler.complete_with_retry(messages=messages)
+        chat_response = m_handler.invoke_with_retry(messages=messages, method="complete")
 
         # Print the content of the response
         answer = chat_response.choices[0].message.content
