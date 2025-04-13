@@ -1,15 +1,16 @@
+import datetime
+import json
 import logging
 import os
 from argparse import ArgumentParser
 
 from mistralai import Mistral
 
-from utils.logger import filter_loggers
+from utils.logger import filter_loggers, LOG_CONFIG
 from utils.mistral_handler import MistralCompletionHandler
 
-filter_loggers({'httpcore': 'ERROR'})
-
-logging.basicConfig(level=logging.DEBUG)
+filter_loggers({'httpcore': 'ERROR', 'httpx': 'ERROR'})
+logging.basicConfig(**LOG_CONFIG)
 logger = logging.getLogger(__name__)
 
 api_key = os.environ["MISTRAL_API_KEY"]
@@ -48,7 +49,7 @@ if __name__ == "__main__":
     signed_url = m_handler.client.files.get_signed_url(file_id=file_id)
 
     # Define the messages for the chat
-    output = {}
+    output = []
     for i, question in enumerate(QUESTIONS):
         messages = [
             {
@@ -88,4 +89,9 @@ if __name__ == "__main__":
         })
 
     # Save the output to a JSON file
-    output_file = f"tmp/qa_doc_understanding_{file_id}_answers.json"
+    timestamp = datetime.datetime.now().isoformat().replace(":", "-")  # Replace invalid characters
+    output_file = f"tmp/qa_doc_understanding_{file_id}_{timestamp}.json"
+    with open(output_file, "w", encoding="utf-8") as json_file:
+        json.dump(output, json_file, indent=2, ensure_ascii=False)
+
+    logger.info(f"Output saved to {output_file}")

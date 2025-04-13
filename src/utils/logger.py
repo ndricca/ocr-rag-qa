@@ -1,5 +1,10 @@
 import logging
 
+LOG_CONFIG = {
+    'level': logging.DEBUG,
+    'format': '%(asctime)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s',
+}
+
 def filter_loggers(lib_level_dict: dict[str, str]):
     """
     Set the logging level for specific libraries.
