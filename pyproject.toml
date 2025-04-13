@@ -1,0 +1,14 @@
+[project]
+name = "ocr-rag-qa"
+version = "0.1.0"
+description = "Simple repository for OCR and RAG Question Answering"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "mistralai>=1.6.0",
+]
+
+[dependency-groups]
+dev = [
+    "python-dotenv>=1.1.0",
+]
