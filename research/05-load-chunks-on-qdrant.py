@@ -14,10 +14,15 @@ filter_loggers({'httpcore': 'ERROR', 'httpx': 'ERROR'})
 logging.basicConfig(**LOG_CONFIG)
 
 logger = logging.getLogger(__name__)
+
 qdrant_url = os.getenv('QDRANT_URL')
 qdrant_port = os.getenv('QDRANT_PORT')
-
-client = QdrantClient(url=f"{qdrant_url}:{qdrant_port}")
+if qdrant_url:
+    client = QdrantClient(url=f"{qdrant_url}:{qdrant_port}")
+else:
+    logger.debug(f'loading local Qdrant client at "{os.getenv("QDRANT_PATH_TO_DB")}"')
+    os.makedirs(os.getenv("QDRANT_PATH_TO_DB"), exist_ok=True)
+    client = QdrantClient(path=os.getenv("QDRANT_PATH_TO_DB"))
 
 parser = ArgumentParser(description="Load chunks into Qdrant.")
 parser.add_argument('--embeddings_file', type=str,
@@ -84,5 +89,5 @@ if __name__ == "__main__":
         points=point_structs
     )
 
-    print(operation_info)
+    logger.info(f'loaded {len(embedded_chunks)} files: {operation_info}')
 
