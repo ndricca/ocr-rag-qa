@@ -2,10 +2,16 @@ import argparse
 import datetime
 import json
 import logging
+import os
 
+from qdrant_client import QdrantClient
+
+from llm_handlers.jina_handler import JinaHandler
+from llm_handlers.mistral_handler import MistralHandler
 from utils.conversation_handler import ConversationHandler
 from utils.dto import InputMessage
 from utils.logger import filter_loggers, LOG_CONFIG
+from utils.tool_client import ToolClient
 
 filter_loggers({'httpcore': 'ERROR', 'httpx': 'ERROR'})
 logging.basicConfig(**LOG_CONFIG)
@@ -33,8 +39,23 @@ if __name__ == "__main__":
     file_id = args.file_id
     model = args.model
 
+    llm_handler = MistralHandler(chat_model=model)
+    jina_handler = JinaHandler(embed_model="jina-clip-v2")
+
+    qdrant_url = os.getenv('QDRANT_URL')
+    qdrant_port = os.getenv('QDRANT_PORT')
+    if qdrant_url:
+        qdrant_client = QdrantClient(url=f"{qdrant_url}:{qdrant_port}")
+    else:
+        logger.debug(f'loading local Qdrant client at "{os.getenv("QDRANT_PATH_TO_DB")}"')
+        os.makedirs(os.getenv("QDRANT_PATH_TO_DB"), exist_ok=True)
+        qdrant_client = QdrantClient(path=os.getenv("QDRANT_PATH_TO_DB"))
+
     # fake key-value db
     conversation_db = {}
+
+    tool_client = ToolClient(llm_handler=llm_handler, embeddings_handler=jina_handler,
+                             vector_db=qdrant_client, collection_name=file_id)
 
     output = []
     for i, question in enumerate(QUESTIONS):
@@ -45,7 +66,10 @@ if __name__ == "__main__":
             message=question
         )
 
-        conversation_handler = ConversationHandler(input_dto, conversation_db, collection_name="ski_league")
+        conversation_handler = ConversationHandler(input_dto,
+                                                   conversation_db=conversation_db,
+                                                   tool_client=tool_client,
+                                                   llm_handler=llm_handler)
         output_message = conversation_handler.main()
         answer = output_message.message
         logger.info(f'# Question {i:02}: "{question}"\n# Answer: "{answer}"\n')
