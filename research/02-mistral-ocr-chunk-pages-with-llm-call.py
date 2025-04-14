@@ -16,10 +16,7 @@ logging.basicConfig(**LOG_CONFIG)
 logger = logging.getLogger(__name__)
 
 parser = ArgumentParser(description="Process Mistral OCR output to create chunks.")
-parser.add_argument('--ocr_output_file', type=str,
-                    help="Path to the OCR output file")  # data/processed/ocr_result_9d277797-a704-406c-bd99-a9803d0cf8f5.json
-parser.add_argument('--model', type=str, help="Mistral model to use for chunking", default='mistral-small-latest',
-                    required=False)  # mistral-small-latest
+parser.add_argument('--md_file', type=str, help="Path to the Markdown formatted file from OCR")  # data/processed/ocr_result_9d277797-a704-406c-bd99-a9803d0cf8f5.md
 
 
 class ChunkingEvaluation(BaseModel):
@@ -109,7 +106,7 @@ Second page:
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    ocr_output_file = args.ocr_output_file
+    ocr_output_file = args.md_file
     model = args.model
 
     m_handler = MistralCompletionHandler(model=model)
