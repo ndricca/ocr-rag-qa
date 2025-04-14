@@ -11,12 +11,15 @@ The project will be implemented using the following technologies:
 
 ## Usage
 
-To reproduce this code you have to set some environemt variables.
-
-For Mistral OCR you need to have access to MistralAI. You can get your API key from the Mistral AI website. 
+To reproduce this code you have to set some environment variables (MistralAI, JinaAI).
 
 You can set the API key in your environment by creating a .env file similar `sample.env` file versioned.
 Remember to not add to git your .env file with the API key.
 
-
+You will also need docker or podman installed to run Qdrant, the vector database. Follow this [link](https://qdrant.tech/documentation/quickstart/#how-to-get-started-with-qdrant-locally) for local setup.
+In case of using podman on Windows, you need to create a .qdrant_storage folder in project root and then run the following command:
+```bash
+podman run -p 6333:6333 -p 6334:6334 -v ".\.qdrant_storage:/qdrant/storage/:z" qdrant
+```
+Web UI is available at [localhost:6333/dashboard](http://localhost:6333/dashboard)
 
