@@ -4,10 +4,8 @@ import logging
 import os
 from argparse import ArgumentParser
 
-from mistralai import Mistral
-
 from utils.logger import filter_loggers, LOG_CONFIG
-from utils.mistral_handler import MistralCompletionHandler
+from llm_handlers.mistral_handler import MistralHandler
 
 filter_loggers({'httpcore': 'ERROR', 'httpx': 'ERROR'})
 logging.basicConfig(**LOG_CONFIG)
@@ -36,7 +34,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     file_id = args.file_id
     model = args.model
-    m_handler = MistralCompletionHandler(model=model)
+    m_handler = MistralHandler(chat_model=model)
 
     try:
         uploaded_pdf = m_handler.client.files.retrieve(file_id=file_id)

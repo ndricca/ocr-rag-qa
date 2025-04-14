@@ -1,14 +1,12 @@
 import json
 import logging
-import re
 from argparse import ArgumentParser
-from enum import StrEnum
 
 from mistralai import OCRResponse
 from pydantic import BaseModel, Field
 
 from utils.logger import filter_loggers, LOG_CONFIG
-from utils.mistral_handler import MistralCompletionHandler
+from llm_handlers.mistral_handler import MistralHandler
 
 filter_loggers({'httpcore': 'ERROR', 'httpx': 'ERROR'})
 logging.basicConfig(**LOG_CONFIG)
@@ -49,7 +47,7 @@ class Chunk(BaseModel):
     metadata: ChunkMetadata = Field(..., description="Metadata associated with the chunk")
 
 
-def chunk_ocr_pages_using_mistral_check(ocr_response: OCRResponse, m_handler: MistralCompletionHandler) -> list[Chunk]:
+def chunk_ocr_pages_using_mistral_check(ocr_response: OCRResponse, m_handler: MistralHandler) -> list[Chunk]:
     """
     For each chunk - excluding the first - check if current and previous chunk should be merged into one.
     Check is done by calling the Mistral API with the text of both chunks.
@@ -109,7 +107,7 @@ if __name__ == "__main__":
     ocr_output_file = args.md_file
     model = args.model
 
-    m_handler = MistralCompletionHandler(model=model)
+    m_handler = MistralHandler(chat_model=model)
 
     with open(ocr_output_file, "r", encoding='utf-8') as jf:
         ocr_response = OCRResponse(**json.load(jf))
