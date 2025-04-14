@@ -6,12 +6,13 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "mistralai>=1.6.0",
+    "markdown>=3.8",
+    "fastapi>=0.115.12",
+    "requests>=2.32.3"
 ]
 
 [dependency-groups]
 dev = [
-    "markdown>=3.8",
     "python-dotenv>=1.1.0",
     "qdrant-client>=1.13.3",
-    "requests>=2.32.3",
 ]
