@@ -96,7 +96,7 @@ Considera quanto segue per rispondere alla domanda:
         )
         return response.choices[0].message.content
 
-    def get_context(self, search_query: str, limit: int = 3) -> str:
+    def get_context(self, search_query: str, limit: int = 3) -> dict:
         """
         This function is used to search for information in the vector store.
         It implements a query search that expands the user input with a hypothetical answer to increase cosine similarity with stored chunks.
@@ -105,20 +105,20 @@ Considera quanto segue per rispondere alla domanda:
             search_query (str): The query to search for in the vector store.
             limit (int): The maximum number of results to return. Default is 3.
         """
-        embedded_query = self.embeddings_handler.invoke_with_retry(
+        embedded_query_resp = self.embeddings_handler.invoke_with_retry(
             'embed', [{'text': search_query}],
             to_embed_key="text",
         )
+        embedded_query = embedded_query_resp.data[0].embedding
         max_limit = min(limit, 20)
         results = self.vector_db.query_points(
             collection_name=self.collection_name,
-            query_text=embedded_query,
+            query=embedded_query,
             limit=max_limit,
             with_payload=True,
-            with_vector=False,
         )
         result_text = sorted(results.points, key=lambda x: x.score, reverse=True)
-        return json.dumps(result_text)
+        return [r.model_dump() for r in result_text]
 
     def execute(self, tool_name: str, tool_arguments: str) -> str:
         """
