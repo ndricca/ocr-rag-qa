@@ -46,7 +46,6 @@ class ConversationHandler:
             messages=self.current_conversation,
             temperature=0.7,
             tools=self.tool_client.tools,
-            tool_choice="any"
         )
         response_msg = response.choices[0].message
         self.current_conversation.append({
