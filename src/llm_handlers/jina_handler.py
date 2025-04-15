@@ -65,7 +65,10 @@ class JinaHandler(BaseHandler):
         self.token_usage['total_tokens'] += response.usage.total_tokens
         self.token_usage['prompt_tokens'] += response.usage.prompt_tokens
 
-    def _embed(self, messages: list[dict], to_embed_key: str, **embeddings_create_kwargs) -> JinaEmbeddingResponse:
+    def _embed(self, messages: list[dict], **embeddings_create_kwargs) -> JinaEmbeddingResponse:
+        if "to_embed_key" not in embeddings_create_kwargs:
+            raise ValueError("to_embed_key must be provided for embedding.")
+        to_embed_key = embeddings_create_kwargs.pop('to_embed_key')
         data = {
             'model': self.embed_model,
             'input': [{'text': m.get(to_embed_key)} for m in messages],
@@ -77,16 +80,20 @@ class JinaHandler(BaseHandler):
         self.update_state(jina_embedding_response)
         return jina_embedding_response
 
+    def _complete(self, messages: list[dict], *args, **kwargs):
+        raise NotImplemented
+
+    def _parse(self, messages: list[dict], *args, **kwargs):
+        raise NotImplemented
+
     def invoke_with_retry(self,
-                          method: Literal["complete", "parse", "embed"],
-                          messages: list[dict],
+                          method: Literal["embed"],
                           **invoke_kwargs) -> JinaEmbeddingResponse:
         """
         Return the response from the Jina API with retry logic for rate limits.
 
         Args:
-            method: The method to invoke, either "complete", "parse" or "embed".
-            messages: List of message dictionaries.
+            method: The method to invoke, only "embed" for Jina.
             *invoke_kwargs: Additional parameters for client methods invocation.
 
         Returns:
@@ -99,18 +106,14 @@ class JinaHandler(BaseHandler):
                 case "parse":
                     raise NotImplementedError("Chat parsing is not implemented for Jina.")
                 case "embed":
-                    if "to_embed_key" not in invoke_kwargs:
-                        raise ValueError("to_embed_key must be provided for embedding.")
-                    to_embed_key = invoke_kwargs.get("to_embed_key")
-                    embed_invoke_kwargs = {k: v for k, v in invoke_kwargs.items() if k != "to_embed_key"}
-                    response = self._embed(messages, to_embed_key=to_embed_key, **embed_invoke_kwargs)
+                    response = self._embed(**invoke_kwargs)
                 case _:
-                    raise ValueError(f"Invalid method: {method}. Use 'complete' or 'parse'.")
+                    raise ValueError(f"Invalid method: {method}. Use 'embed'.")
         except Exception as e:
             try:
                 logger.warning(f"Retrying after error: {e}")
                 time.sleep(10)
-                return self.invoke_with_retry(method, messages, **invoke_kwargs)
+                return self.invoke_with_retry(method, **invoke_kwargs)
             except Exception as retry_exception:
                 logger.error(f"Retry failed: {retry_exception}")
                 raise retry_exception
