@@ -3,14 +3,14 @@ import logging
 
 from qdrant_client import QdrantClient
 
+from llm_handlers.base_handler import BaseHandler
 from llm_handlers.jina_handler import JinaHandler
-from llm_handlers.mistral_handler import MistralHandler
 
 logger = logging.getLogger(__name__)
 
 
 class ToolClient:
-    def __init__(self, llm_handler: MistralHandler,
+    def __init__(self, llm_handler: BaseHandler,
                  embeddings_handler: JinaHandler,
                  vector_db: QdrantClient,
                  collection_name: str):
