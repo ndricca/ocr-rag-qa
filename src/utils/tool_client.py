@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 from qdrant_client import QdrantClient
 
@@ -12,14 +13,30 @@ logger = logging.getLogger(__name__)
 class ToolClient:
     def __init__(self, llm_handler: BaseHandler,
                  embeddings_handler: JinaHandler,
-                 vector_db: QdrantClient,
-                 collection_name: str):
+                 collection_name: str,
+                 vector_db: QdrantClient | None = None
+                 ):
         self.llm_handler = llm_handler
         self.embeddings_handler = embeddings_handler
-        self.vector_db = vector_db
+        if vector_db:
+            self.vector_db = vector_db
+        else:
+            qdrant_url = os.getenv('QDRANT_URL')
+            qdrant_port = os.getenv('QDRANT_PORT')
+            if qdrant_url:
+                self.vector_db = QdrantClient(url=f"{qdrant_url}:{qdrant_port}")
+            else:
+                logger.debug(f'loading local Qdrant client at "{os.getenv("QDRANT_PATH_TO_DB")}"')
+                os.makedirs(os.getenv("QDRANT_PATH_TO_DB"), exist_ok=True)
+                self.vector_db = QdrantClient(path=os.getenv("QDRANT_PATH_TO_DB"),
+                                              force_disable_check_same_thread=True)
         self.collection_name = collection_name
 
         # Initialize tools
+        self.tool_to_function = {
+            "math_reasoning": self.math_reasoning,
+            "get_context": self.get_context
+        }
         self.tools = [
             {
                 "type": "function",
@@ -56,7 +73,7 @@ class ToolClient:
                             },
                             "limit": {
                                 "type": "integer",
-                                "description": """Max number of results to return. Higher for abstractive queries, lower for extractive (factual) queries.""",
+                                "description": """Max number of results to return, usually among 3 and 20. Higher for abstractive queries, lower for extractive (factual) queries.""",
                             }
                         },
                         "required": ["question"]
@@ -64,10 +81,7 @@ class ToolClient:
                 }
             }
         ]
-        self.tool_to_function = {
-            "math_reasoning": self.math_reasoning,
-            "get_context": self.get_context
-        }
+
 
     def math_reasoning(self, question: str, context: str) -> str:
         """
