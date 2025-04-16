@@ -7,12 +7,15 @@ requires-python = ">=3.12"
 dependencies = [
     "mistralai>=1.6.0",
     "markdown>=3.8",
-    "fastapi>=0.115.12",
-    "requests>=2.32.3"
+    "fastapi[standard]>=0.115.12",
+    "requests>=2.32.3",
+    "openai>=1.74.0",
+    "websockets>=15.0.1",
+    "qdrant-client>=1.13.3",
+    "uvicorn>=0.34.1",
 ]
 
 [dependency-groups]
 dev = [
     "python-dotenv>=1.1.0",
-    "qdrant-client>=1.13.3",
 ]
