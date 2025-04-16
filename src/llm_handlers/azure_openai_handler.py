@@ -35,8 +35,7 @@ class AzureOpenaiHandler(BaseHandler):
         self.token_usage['prompt_tokens'] += response.usage.prompt_tokens
         self.token_usage['completion_tokens'] += response.usage.completion_tokens
         request_time = time.time()
-        self.update_tokens_in_minute(request_time)
-        self.last_request_time = request_time
+        self.update_last_minute_state(request_time)
 
     def _complete(self, messages: list[dict], **chat_complete_kwargs) -> ChatCompletion:
         response = self.client.chat.completions.create(

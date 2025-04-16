@@ -21,6 +21,7 @@ class BaseHandler(ABC):
         self.rps_limit = rps_limit
         self.tpm_limit = tpm_limit
         self.tokens_in_minute: int = 0
+        self.requests_in_minute: int = 0
 
 
     @abstractmethod
@@ -46,14 +47,17 @@ class BaseHandler(ABC):
         # TODO understand if this may be generalized here
         pass
 
-    def update_tokens_in_minute(self, request_time: float):
+    def update_last_minute_state(self, request_time: float):
         """
-        Update the number of tokens used in the last minute comparing current to last request time.
+        Update number of requests and number of  tokens used in the last minute comparing current to last request time.
         """
         if self.last_request_time is not None and (request_time - self.last_request_time) < 60:
+            self.requests_in_minute += 1
             self.tokens_in_minute += self.token_usage['total_tokens']
         else:
+            self.requests_in_minute = 0
             self.tokens_in_minute = 0
+        self.last_request_time = request_time
 
     def wait_if_tpm_limit(self):
         if self.tpm_limit is None:
@@ -66,9 +70,9 @@ class BaseHandler(ABC):
     def wait_if_rps_limit(self):
         if self.rps_limit is None:
             return  # nothing to do here
-        if self.last_request_time is not None:
-            elapsed_time = time.time() - self.last_request_time
-            if elapsed_time < self.rps_limit:
-                logger.warning(f"Rate limit exceeded. Sleeping for {self.rps_limit - elapsed_time:.2f} seconds.")
-                time.sleep(self.rps_limit - elapsed_time)
+        if self.requests_in_minute > self.rps_limit:
+            request_time = time.time()
+            elapsed_time = request_time - self.last_request_time
+            logger.warning(f"RPS limit exceeded. Sleeping for {60 - elapsed_time:.2f} seconds.")
+            time.sleep(60 - elapsed_time)
 
