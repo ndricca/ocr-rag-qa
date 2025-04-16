@@ -73,7 +73,7 @@ class ToolClient:
                             },
                             "limit": {
                                 "type": "integer",
-                                "description": """Max number of results to return, usually among 3 and 20. Higher for abstractive queries, lower for extractive (factual) queries.""",
+                                "description": """Max number of results to return, usually 3-5 are enough. Keep it higher for abstractive queries, lower for extractive (factual) queries.""",
                             }
                         },
                         "required": ["question"]
