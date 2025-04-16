@@ -1,7 +1,8 @@
 import logging
+import os
 
 LOG_CONFIG = {
-    'level': logging.DEBUG,
+    'level': os.getenv("LOG_LEVEL", logging.DEBUG),
     'format': '%(asctime)s; %(levelname)s; %(name)s; %(funcName)s:%(lineno)d; %(message)s',
 }
 
