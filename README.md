@@ -77,8 +77,12 @@ cd src && fastapi run app.py --port 8000
 
 The server will be available at [localhost:8000](http://localhost:8000).
 
-The server provides a simple html page and a Websocket interface at `/ws` endpoint.
+The server provides a simple html page and a Websocket interface at `/ws` endpoint. The Websocket interface allows you to send messages to the server and receive responses in real-time. In this case it is used to send events such as tool calling start and end.
+
+To do this, the main conversation handler `ConversationHandler.main` method has been implemented as an async function.
+
 Routing Agent is developed in `ConversationHandler.routing_agent` method, which is iteratively called depending on the presence of a tool call request in last completion response.
+
 Tool Agents are implemented in `ToolClient.get_context` and `ToolClient.math_reasoning` methods.
 
 ### Environment Variables
