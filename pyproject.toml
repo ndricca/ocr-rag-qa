@@ -1,7 +1,7 @@
 [project]
 name = "ocr-rag-qa"
 version = "1.0.0"
-description = "Simple repository for OCR and RAG Question Answering"
+description = "Repository containing a simple conversational which implements via websocket an Agentic RAG workflow and a preprocessing pipeline (mistral OCR -> Jina Embedding --> Qdrant)."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
