@@ -110,7 +110,7 @@ Considera quanto segue per rispondere alla domanda:
         )
         return response.choices[0].message.content
 
-    def get_context(self, search_query: str, limit: int = 3) -> dict:
+    def get_context(self, search_query: str, limit: int = 3, max_limit: int = 20, min_limit: int = 3) -> list[dict]:
         """
         This function is used to search for information in the vector store.
         It implements a query search that expands the user input with a hypothetical answer to increase cosine similarity with stored chunks.
@@ -120,15 +120,17 @@ Considera quanto segue per rispondere alla domanda:
             limit (int): The maximum number of results to return. Default is 3.
         """
         embedded_query_resp = self.embeddings_handler.invoke_with_retry(
-            'embed', [{'text': search_query}],
+            'embed', messages=[{'text': search_query}],
             to_embed_key="text",
         )
         embedded_query = embedded_query_resp.data[0].embedding
-        max_limit = min(limit, 20)
+        logger.debug(f'limit {limit} forced to be between {min_limit} and {max_limit}')
+        limit = min(limit, max_limit)
+        limit = max(limit, min_limit)
         results = self.vector_db.query_points(
             collection_name=self.collection_name,
             query=embedded_query,
-            limit=max_limit,
+            limit=limit,
             with_payload=True,
         )
         result_text = sorted(results.points, key=lambda x: x.score, reverse=True)
