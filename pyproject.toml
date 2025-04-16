@@ -1,6 +1,6 @@
 [project]
 name = "ocr-rag-qa"
-version = "0.1.0"
+version = "1.0.0"
 description = "Simple repository for OCR and RAG Question Answering"
 readme = "README.md"
 requires-python = ">=3.12"
