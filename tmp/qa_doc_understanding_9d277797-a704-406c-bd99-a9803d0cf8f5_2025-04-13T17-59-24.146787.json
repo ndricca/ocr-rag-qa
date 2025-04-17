@@ -1,0 +1,52 @@
+[
+  {
+    "id": 0,
+    "question": "In quale stagione è stata inaugurata la Coppa del Mondo di sci alpino?",
+    "answer": "La Coppa del Mondo di sci alpino è stata inaugurata nella stagione 1966-1967."
+  },
+  {
+    "id": 1,
+    "question": "Quali sono le discipline in cui si gareggia nella Coppa del Mondo di sci alpino?",
+    "answer": "Le discipline in cui si gareggia nella Coppa del Mondo di sci alpino sono:\n\n- Discesa libera\n- Supergigante\n- Slalom gigante\n- Slalom speciale\n- Combinata (o supercombinata)\n- Slalom parallelo (disputato solo in alcuni anni)"
+  },
+  {
+    "id": 2,
+    "question": "Come vengono assegnati i punti ai primi 30 classificati di ogni gara?",
+    "answer": "Ai primi 30 classificati di ogni gara vengono assegnati punti come segue:\n\n- 1° posto: 100 punti\n- 2° posto: 80 punti\n- 3° posto: 60 punti\n- 4° posto: 50 punti\n- 5° posto: 45 punti\n- 6° posto: 40 punti\n- 7° posto: 36 punti\n- 8° posto: 32 punti\n- 9° posto: 29 punti\n- 10° posto: 26 punti\n- 11° posto: 24 punti\n- 12° posto: 22 punti\n- 13° posto: 20 punti\n- 14° posto: 18 punti\n- 15° posto: 16 punti\n- 16° posto: 15 punti\n- 17° posto: 14 punti\n- 18° posto: 13 punti\n- 19° posto: 12 punti\n- 20° posto: 11 punti\n- 21° posto: 10 punti\n- 22° posto: 9 punti\n- 23° posto: 8 punti\n- 24° posto: 7 punti\n- 25° posto: 6 punti\n- 26° posto: 5 punti\n- 27° posto: 4 punti\n- 28° posto: 3 punti\n- 29° posto: 2 punti\n- 30° posto: 1 punto\n\nNon viene assegnato punteggio qualora i classificatisi entro il 30° posto abbiano subito un distacco maggiore dell'8% del tempo del 1° classificato."
+  },
+  {
+    "id": 3,
+    "question": "Qual è il distacco massimo dal primo classificato oltre il quale non vengono assegnati punti ai concorrenti entro il 30º posto?",
+    "answer": "Il distacco massimo dal primo classificato oltre il quale non vengono assegnati punti ai concorrenti entro il 30º posto è dell'8%."
+  },
+  {
+    "id": 4,
+    "question": "Quale nazione ha vinto il maggior numero totale di Coppe del Mondo generali (maschili e femminili)?",
+    "answer": "L'Austria ha vinto il maggior numero totale di Coppe del Mondo generali (maschili e femminili) con 34 coppe."
+  },
+  {
+    "id": 5,
+    "question": "Oggi è il 2000: quando Mikaela Shiffrin farà il suo debutto in Coppa del Mondo di sci alpino?",
+    "answer": "Mikaela Shiffrin farà il suo debutto in Coppa del Mondo di sci alpino nella stagione 2011/2012."
+  },
+  {
+    "id": 6,
+    "question": "Se un atleta ottiene una media di 80 punti per gara e partecipa a 30 gare in una stagione, può vincere la Coppa del Mondo generale? (Considerando che mediamente il vincitore della Coppa del Mondo totalizza circa 1500-2000 punti in una stagione).",
+    "answer": "No, un atleta che ottiene una media di 80 punti per gara in 30 gare in una stagione non può vincere la Coppa del Mondo generale. Il vincitore della Coppa del Mondo generale totalizza mediamente tra 1500 e 2000 punti in una stagione."
+  },
+  {
+    "id": 7,
+    "question": "In media in carriera, ogni quanti anni Marcel Hirsher ha vinto una coppa del mondo generale?",
+    "answer": "Marcel Hirscher ha vinto la Coppa del Mondo generale 8 volte in carriera. Per calcolare la media degli anni tra una vittoria e l'altra, si divide il numero totale di anni della sua carriera per il numero di vittorie:\n\n- La carriera di Marcel Hirscher va dal 2007 al 2019, per un totale di 12 anni.\n- Ha vinto 8 Coppe del Mondo generali.\n\nQuindi, la media degli anni tra una vittoria e l'altra è:\n\n\\[ \\frac{12 \\text{ anni}}{8 \\text{ vittorie}} = 1,5 \\text{ anni} \\]\n\nMarcel Hirscher ha vinto la Coppa del Mondo generale in media ogni 1,5 anni."
+  },
+  {
+    "id": 8,
+    "question": "Quanto tempo è trascorso in termini di anni tra le due vittorie della Coppa del Mondo Generale di Federica Brignone?",
+    "answer": "Federica Brignone ha vinto la Coppa del Mondo Generale per la prima volta nella stagione 2019/2020 e per la seconda volta nella stagione 2024/2025. Tra le due vittorie sono trascorsi 5 anni."
+  },
+  {
+    "id": 9,
+    "question": "Se la prima atleta all'arrivo conclude la gara con un tempo di 59\"10, quale è il tempo massimo entro il quale un atleta che termina la gara nelle prime 30 posizioni deve arrivare per ottenere punti?",
+    "answer": "Il tempo massimo entro il quale un atleta che termina la gara nelle prime 30 posizioni deve arrivare per ottenere punti è di 59\"10 + 8% di 59\"10. Calcolando l'8% di 59\"10 si ottiene 4,728 secondi. Pertanto, il tempo massimo è di 59\"10 + 4,728 = 63,828 secondi, ovvero 63\"83."
+  }
+]

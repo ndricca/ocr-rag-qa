@@ -1,0 +1,52 @@
+[
+  {
+    "id": 0,
+    "question": "In quale stagione \u00e8 stata inaugurata la Coppa del Mondo di sci alpino?",
+    "answer": "La Coppa del Mondo di sci alpino \u00e8 stata inaugurata nella stagione 1966-1967."
+  },
+  {
+    "id": 1,
+    "question": "Quali sono le discipline in cui si gareggia nella Coppa del Mondo di sci alpino?",
+    "answer": "Nella Coppa del Mondo di sci alpino si gareggia nelle seguenti discipline principali:\n\n1. Discesa libera (DH)\n2. Supergigante (Super-G)\n3. Slalom gigante (GS)\n4. Slalom speciale (SL)\n\nA queste, in alcune stagioni recenti, si sono aggiunte:\n- Combinata (o supercombinata): una gara che unisce una discesa o super-G e uno slalom.\n- Slalom parallelo: gara a eliminazione diretta su un tracciato parallelo.\n\nLe classifiche principali sono per ciascuna disciplina e una generale che somma i risultati di tutte le specialit\u00e0."
+  },
+  {
+    "id": 2,
+    "question": "Come vengono assegnati i punti ai primi 30 classificati di ogni gara?",
+    "answer": "Ai primi 30 classificati di ogni gara della Coppa del Mondo di Sci Alpino vengono assegnati punti secondo questa tabella:\n\n1\u00b0 posto: 100 punti  \n2\u00b0 posto: 80 punti  \n3\u00b0 posto: 60 punti  \n4\u00b0 posto: 50 punti  \n5\u00b0 posto: 45 punti  \n6\u00b0 posto: 40 punti  \n7\u00b0 posto: 36 punti  \n8\u00b0 posto: 32 punti  \n9\u00b0 posto: 29 punti  \n10\u00b0 posto: 26 punti  \n11\u00b0 posto: 24 punti  \n12\u00b0 posto: 22 punti  \n13\u00b0 posto: 20 punti  \n14\u00b0 posto: 18 punti  \n15\u00b0 posto: 16 punti  \n16\u00b0 posto: 15 punti  \n17\u00b0 posto: 14 punti  \n18\u00b0 posto: 13 punti  \n19\u00b0 posto: 12 punti  \n20\u00b0 posto: 11 punti  \n21\u00b0 posto: 10 punti  \n22\u00b0 posto: 9 punti  \n23\u00b0 posto: 8 punti  \n24\u00b0 posto: 7 punti  \n25\u00b0 posto: 6 punti  \n26\u00b0 posto: 5 punti  \n27\u00b0 posto: 4 punti  \n28\u00b0 posto: 3 punti  \n29\u00b0 posto: 2 punti  \n30\u00b0 posto: 1 punto  \n\nNota: non viene assegnato il punteggio se il distacco dal primo supera l'8% del tempo."
+  },
+  {
+    "id": 3,
+    "question": "Qual \u00e8 il distacco massimo dal primo classificato oltre il quale non vengono assegnati punti ai concorrenti entro il 30\u00ba posto?",
+    "answer": "Il distacco massimo dal primo classificato oltre il quale non vengono assegnati punti ai concorrenti entro il 30\u00ba posto nella Coppa del Mondo di Sci Alpino \u00e8 l'8% del tempo del vincitore. Se un atleta entro il 30\u00ba posto ha un tempo superiore dell'8% rispetto a quello del primo classificato, non riceve punti."
+  },
+  {
+    "id": 4,
+    "question": "Quale nazione ha vinto il maggior numero totale di Coppe del Mondo generali (maschili e femminili)?",
+    "answer": "Dalla ricerca nei dati disponibili non emerge una tabella riassuntiva esplicita per nazione, ma si pu\u00f2 rispondere grazie alle informazioni storiche note e ai record individuali.\n\nLa nazione che ha vinto il maggior numero totale di Coppe del Mondo generali (maschili e femminili) \u00e8 l'Austria. Questo risultato \u00e8 dovuto soprattutto ai numerosi successi sia nel settore maschile (con atleti come Hermann Maier, Marcel Hirscher, Karl Schranz) sia femminile (come Annemarie Moser-Pr\u00f6ll, Petra Kronberger, Renate G\u00f6tschl e altre).\n\nL'Austria \u00e8 universalmente riconosciuta come la nazione pi\u00f9 vincente nella storia della Coppa del Mondo di sci alpino, considerando sia i titoli generali sia quelli di specialit\u00e0."
+  },
+  {
+    "id": 5,
+    "question": "Oggi \u00e8 il 2000: quando Mikaela Shiffrin far\u00e0 il suo debutto in Coppa del Mondo di sci alpino?",
+    "answer": "Non trovo nei dati a disposizione l'anno esatto del debutto di Mikaela Shiffrin in Coppa del Mondo di sci alpino, ma posso fornirti l'informazione: Mikaela Shiffrin ha fatto il suo debutto in Coppa del Mondo nel 2011.\n\nSe invece vuoi una ricetta tipica della Valtellina per ingannare l\u2019attesa, posso proporti i pizzoccheri!"
+  },
+  {
+    "id": 6,
+    "question": "Se un atleta ottiene una media di 80 punti per gara e partecipa a 30 gare in una stagione, pu\u00f2 vincere la Coppa del Mondo generale? (Considerando che mediamente il vincitore della Coppa del Mondo totalizza circa 1500-2000 punti in una stagione).",
+    "answer": "Se un atleta ottiene una media di 80 punti per gara e partecipa a 30 gare, accumula in totale 2.400 punti (80 x 30). Questo valore \u00e8 superiore alla soglia tipica per vincere la Coppa del Mondo generale (circa 1500-2000 punti).\n\nQuindi s\u00ec, con queste prestazioni l'atleta avrebbe ottime possibilit\u00e0 di vincere la Coppa del Mondo generale."
+  },
+  {
+    "id": 7,
+    "question": "In media in carriera, ogni quanti anni Marcel Hirsher ha vinto una coppa del mondo generale?",
+    "answer": "Dai dati disponibili, Marcel Hirscher ha vinto 8 Coppe del Mondo generali (record assoluto) nella sua carriera. Tuttavia, il numero di stagioni a cui ha partecipato non emerge chiaramente dai dati estratti. Di norma, Hirscher ha gareggiato in Coppa del Mondo dal 2007 al 2019, quindi per 13 stagioni.\n\nFacendo il calcolo:\n- 8 Coppe generali vinte\n- 13 stagioni disputate\n\nIn media, Marcel Hirscher ha vinto una Coppa del Mondo generale ogni circa 1,6 stagioni (13 stagioni / 8 vittorie \u2248 1,6).\n\nRisposta sintetica:\n**In media, Marcel Hirscher ha vinto una Coppa del Mondo generale ogni circa 1,6 anni di carriera.**"
+  },
+  {
+    "id": 8,
+    "question": "Quanto tempo \u00e8 trascorso in termini di anni tra le due vittorie della Coppa del Mondo Generale di Federica Brignone?",
+    "answer": "Dalle informazioni disponibili, Federica Brignone ha vinto la sua prima Coppa del Mondo generale nella stagione 2019/2020. Al momento, non risulta abbia vinto una seconda Coppa del Mondo generale. Se ti riferisci a un\u2019altra tipologia di coppa o stagione, puoi fornire maggiori dettagli?"
+  },
+  {
+    "id": 9,
+    "question": "Se la prima atleta all'arrivo conclude la gara con un tempo di 59\"10, quale \u00e8 il tempo massimo entro il quale un atleta che termina la gara nelle prime 30 posizioni deve arrivare per ottenere punti?",
+    "answer": "Per ottenere punti nelle prime 30 posizioni in Coppa del Mondo di Sci Alpino, un atleta deve arrivare entro un tempo che non sia superiore dell\u20198% rispetto al tempo della prima classificata.\n\nNel tuo caso:\n- Tempo della prima atleta: 59\"10 (ossia 59,10 secondi)\n- Si calcola l\u20198% di 59,10 secondi: 59,10 \u00d7 0,08 = 4,728 secondi\n- Si somma questo distacco al tempo della prima: 59,10 + 4,728 = 63,828 secondi\n\nQuindi, il tempo massimo entro cui bisogna arrivare per ottenere punti \u00e8 1 minuto, 3 secondi e 83 centesimi (63\"83). Chi supera questo tempo, pur essendo nei primi 30, non ottiene punti."
+  }
+]
