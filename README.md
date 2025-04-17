@@ -73,7 +73,18 @@ Remember to not add to git your .env file with the API key.
 ## Executing the code in a container
 This project can be run in a container using Docker or Podman.
 To ease the reproducibility, Document Processing results are stored and versioned as file in `data/qdrant` folder.
-TO use that file, set the environment variable `QDRANT_PATH_TO_DB` to the path of the file.
+TO use that file, set `QDRANT_PATH_TO_DB=data/qdrant` in your .env file.
+
+To build the image from source you can than execute the following command:
+```bash
+podman build -t ocr-rag-qa .
+```
+
+Then you can run the container by running:
+```bash
+podman run --rm --env-file .env -p 8000:8000 ocr-rag-qa
+```
+Then you can access the application at [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 
 ## Executing the source code
@@ -92,6 +103,63 @@ cd src && fastapi run app.py --port 8000
 ```
 
 The server will be available at [localhost:8000](http://localhost:8000).
+
+## Project Structure and details
+
+The project is structured as follows:
+```
+./                                        # project root directory
+│
+├─ data                                   # Contains aux data files required by the applicaiton. 
+│   ├─   .gitkeep                         # Versioned placeholder to track the empty folder
+│   │
+│   ├── processed                         # For better explanation, processed data have been versioned too
+│   │   └───...                           
+│   └── raw                               # For better explanation, raw data have been versioned too
+│   │   └───...                           
+│   │       
+│   └── qdrant                            # For better explanation, qdrant data have been versioned too
+│       └───...
+│
+├─ research                               # Contains experimental/research/draft scripts
+│   ├─ .gitkeep
+│   └── ...                                # These scripts are versioned as a journaling way but they must be excluded from final releases
+│
+├─ scripts                                # Reserved for utility scripts that aid in development (e.g. to create aux data) 
+│   └─── load_embeddings.py                # Document Processing main script
+│
+├─ src
+│   │
+│   ├─── llm_handlers                      # Module containing all kind of LLM handlers
+│   │   ├─── azure_openai_handler.py
+│   │   ├─── base_handler.py
+│   │   ├─── jina_handler.py
+│   │   └─── mistral_handler.py
+│   │
+│   ├─── preprocessing                      # Utilities for document preprocessing
+│   │   └─── chunking.py
+│   │
+│   ├─── prompts                            # Assumption: prompt is code, not configuration. Hence it is versioned.
+│   │   ├─── routing_agent.py
+│   │   └─── tool_agents.py
+│   │
+│   ├─── utils                              # General utilities for the Question Answering Agent Workflow
+│   │   ├─── conversation_handler.py
+│   │   ├─── dto.py
+│   │   ├─── logger.py
+│   │   ├─── ocr.py
+│   │   └─── tool_client.py
+│   │
+│   └─── app.py                             # Main FastAPI entrypoint
+│
+├─ agent-rag-general.drawio.png             # Agent Diagram for README 
+├─ Dockerfile                               # Dockerfile to create a deployable image
+├─ pyproject.toml                           # Python project configuration file
+├─ sample.env                               # Example of how to set up environment variables in .env
+├─ too-get-context.drawio.png               # Tool Diagram for README
+├─ tool-math-reasoning.drawio.png           # Tool Diagram for README
+└─ uv.lock                                  # Python project lock file for reproducibility
+```
 
 The server provides a simple html page and a Websocket interface at `/ws` endpoint. The Websocket interface allows you to send messages to the server and receive responses in real-time. In this case it is used to send events such as tool calling start and end.
 
