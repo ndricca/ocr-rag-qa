@@ -6,6 +6,7 @@ from qdrant_client import QdrantClient
 
 from llm_handlers.base_handler import BaseHandler
 from llm_handlers.jina_handler import JinaHandler
+from prompts.tool_agents import TOOLS_OPENAI_SCHEMA, MATH_REASONING_SYSTEM_TEMPLATE
 
 logger = logging.getLogger(__name__)
 
@@ -37,50 +38,7 @@ class ToolClient:
             "math_reasoning": self.math_reasoning,
             "get_context": self.get_context
         }
-        self.tools = [
-            {
-                "type": "function",
-                "function": {
-                    "name": "math_reasoning",
-                    "description": "Use this tool to approach the problem using mathematical reasoning.",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "question": {
-                                "type": "string",
-                                "description": "The question to be answered."
-                            },
-                            "context": {
-                                "type": "string",
-                                "description": "Contextual information to help answer the question."
-                            }
-                        },
-                        "required": ["question", "context"]
-                    }
-                }
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "get_context",
-                    "description": """ Use this tool to search for information in the vector store. Query search expands user input with an hypothetical answer to increase cosine similarity.""",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "search_query": {
-                                "type": "string",
-                                "description": "Expanded sentence generated from user input to increase cosine similarity."
-                            },
-                            "limit": {
-                                "type": "integer",
-                                "description": """Max number of results to return, usually 3-5 are enough. Keep it higher for abstractive queries, lower for extractive (factual) queries.""",
-                            }
-                        },
-                        "required": ["question"]
-                    }
-                }
-            }
-        ]
+        self.tools = TOOLS_OPENAI_SCHEMA
 
 
     def math_reasoning(self, question: str, context: str) -> str:
@@ -95,12 +53,7 @@ class ToolClient:
         messages = [
             {
                 "role": "system",
-                "content": f"""Il tuo compito è quello di scrivere il procedimento logico necessario ad ottenere un risultato numerico.
-Non concentrarti sul'output finale, ma sul procedimento.
-
-Considera quanto segue per rispondere alla domanda:
-{context}
-"""
+                "content": MATH_REASONING_SYSTEM_TEMPLATE.format(context=context)
             },
             {"role": "user", "content": question},
         ]
