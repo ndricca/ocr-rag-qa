@@ -3,13 +3,12 @@ import logging
 import os
 from argparse import ArgumentParser
 
-from mistralai import Mistral
+from mistralai import Mistral, OCRResponse
 from qdrant_client import QdrantClient
-from qdrant_client.conversions.common_types import Distance
-from qdrant_client.grpc import VectorParams
+from qdrant_client.models import Distance, VectorParams
 
 from llm_handlers.jina_handler import JinaHandler
-from preprocessing.chunking import split_markdown_into_chunks, ChunkWithEmbedding
+from preprocessing.chunking import split_markdown_into_chunks, ChunkWithEmbedding, add_overlap_to_chunks
 from utils.logger import filter_loggers
 from utils.ocr import get_combined_markdown
 
@@ -39,8 +38,8 @@ Steps:
 1. Upload the file to Mistral
 2. Perform OCR on the uploaded file
 3. Split the markdown into chunks
-4. Create a collection in Qdrant
-5. Embed the chunks
+4. Embed the chunks
+5. Create a collection in Qdrant
 6. Load embeddings in Qdrant
 
 Use --file to specify the raw file to upload.
@@ -53,6 +52,8 @@ parser.add_argument('--file_path', type=str, help="Path to the file to upload", 
 if __name__ == "__main__":
     args = parser.parse_args()
     file_path = args.file_path
+
+
 
     logger.info("# 1. Upload the file to Mistral")
     uploaded_pdf = mistral_ocr_client.files.upload(
@@ -68,6 +69,8 @@ if __name__ == "__main__":
 
     # Get the file URL
     signed_url = mistral_ocr_client.files.get_signed_url(file_id=file_id)
+
+
 
     # Perform OCR
     logger.info("# 2. Perform OCR on the uploaded file")
@@ -85,7 +88,8 @@ if __name__ == "__main__":
     print(ocr_result.model_dump_json(indent=2))
 
     # Store ocr_result as a json file with pages
-    with open(f"data/processed/ocr_result_{file_id}.json", "w", encoding="utf-8") as json_file:
+    ocr_response_file_name = f"data/processed/ocr_result_{file_id}.json"
+    with open(ocr_response_file_name, "w", encoding="utf-8") as json_file:
         json_file.write(ocr_result.model_dump_json(indent=2))
 
     # Store the result in a md file
@@ -93,22 +97,18 @@ if __name__ == "__main__":
     with open(result_file_name, "w", encoding="utf-8") as result_file:
         result_file.write(get_combined_markdown(ocr_result))
 
-    with open(result_file_name, "r", encoding='utf-8') as f:
-        file_lines = f.readlines()
+
+    with open(ocr_response_file_name, "r", encoding='utf-8') as f:
+        ocr_response = OCRResponse(**json.load(f))
+
 
     logger.info("# 3. Split the markdown into chunks")
     # Split the markdown into chunks
-    chunks = split_markdown_into_chunks(file_lines)
+    chunks = add_overlap_to_chunks(ocr_response)
 
-    logger.info("# 4. Create a collection in Qdrant")
-    # Create a collection in Qdrant
-    create_response = qdrant_client.create_collection(
-        collection_name=file_id,
-        vectors_config=VectorParams(size=len(chunks[0].text), distance=Distance.COSINE),
-    )
-    logger.info(f"Collection '{file_id}' created successfully")
 
-    logger.info("# 5. Embed the chunks")
+
+    logger.info("# 4. Embed the chunks")
     chunks_with_embeddings = []
     for i, chunk in enumerate(chunks):
         logger.info(f'Chunking chunk {chunk.id:02} with {len(chunk.text)} characters')
@@ -124,6 +124,18 @@ if __name__ == "__main__":
     logger.info(f"Saving chunks with embeddings to {json_chunk_file}")
     with open(json_chunk_file, "w", encoding="utf-8") as json_file:
         json.dump([ce.model_dump() for ce in chunks_with_embeddings], json_file)
+
+
+
+    logger.info("# 5. Create a collection in Qdrant")
+    # Create a collection in Qdrant
+    create_response = qdrant_client.create_collection(
+        collection_name=file_id,
+        vectors_config=VectorParams(size=len(chunks_with_embeddings[0].embedding), distance=Distance.COSINE),
+    )
+    logger.info(f"Collection '{file_id}' created successfully")
+
+
 
     logger.info("# 6. Load the embeddings into Qdrant")
     # Load embeddings in Qdrant
