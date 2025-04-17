@@ -74,7 +74,7 @@ class JinaHandler(BaseHandler):
             'input': [{'text': m.get(to_embed_key)} for m in messages],
             **embeddings_create_kwargs
         }
-        response = requests.post(self.url, headers=self.headers, json=data)
+        response = requests.post(self.url, headers=self.headers, json=data, verify=False)
         response.raise_for_status()
         jina_embedding_response = JinaEmbeddingResponse.from_response(response)
         self.update_state(jina_embedding_response)
