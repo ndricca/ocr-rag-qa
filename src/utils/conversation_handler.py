@@ -6,6 +6,7 @@ from starlette.websockets import WebSocket
 
 from llm_handlers.base_handler import BaseHandler
 from llm_handlers.mistral_handler import MistralHandler
+from prompts.routing_agent import ROUTING_AGENT_SYSTEM_PROMPT
 from utils.dto import InputMessage, OutputMessage, FIXED_FIELDS
 from utils.tool_client import ToolClient
 
@@ -101,13 +102,7 @@ class ConversationHandler:
         if len(self.current_conversation) == 0:
             self.current_conversation.append({
                 "role": "system",
-                "content": """Il tuo compito è quello di rispondere in maniera chiara e concisa alla domanda, utilizzando i tool a tua disposizione.
-        Le domande riguarderanno il mondo dello sci, in particolare la Coppa del Mondo di Sci Alpino.
-        Hai a disposizione un tool per la ricerca di informazioni, e un tool per fare ragionamenti logico-matematici.
-        Usa il tool di ricerca per ottenere informazioni utili a rispondere alla domanda, e nel caso sia necessario fare calcoli sfrutta il tool di ragionamento matematico.
-        Se non sei sicuro sulla risposta, chiedi chiarimenti all'utente.
-        Se la domanda non è pertinente, rispondi ironicamente proponendo una ricetta tipica della Valtellina.
-        """
+                "content": ROUTING_AGENT_SYSTEM_PROMPT
             })
 
         await self.post_event(f'👤: {self.input_dto.message}')
