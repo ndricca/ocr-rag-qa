@@ -2,17 +2,15 @@ import datetime
 import json
 import logging
 import os.path
-import re
 from argparse import ArgumentParser
 
 from mistralai import OCRResponse
-from pydantic import BaseModel, Field
 from qdrant_client import QdrantClient
+from qdrant_client.models import VectorParams, Distance
 
 from llm_handlers.jina_handler import JinaHandler
 from preprocessing.chunking import ChunkWithEmbedding, add_overlap_to_chunks
 from utils.logger import filter_loggers, LOG_CONFIG
-from llm_handlers.mistral_handler import MistralHandler
 
 filter_loggers({'httpcore': 'ERROR', 'httpx': 'ERROR'})
 logging.basicConfig(**LOG_CONFIG)
@@ -35,6 +33,7 @@ else:
 if __name__ == "__main__":
     args = parser.parse_args()
     ocr_output_file = args.ocr_output_file
+    file_id = "9d277797-a704-406c-bd99-a9803d0cf8f5"  # TODO make argument
 
     j_handler = JinaHandler(embed_model="jina-clip-v2")
 
@@ -64,6 +63,16 @@ if __name__ == "__main__":
         chunks_with_embeddings.append(chunk_with_emb)
 
 
+
+    logger.info("# 5. Create a collection in Qdrant")
+    # Create a collection in Qdrant
+    create_response = qdrant_client.create_collection(
+        collection_name=file_id,
+        vectors_config=VectorParams(size=len(chunks_with_embeddings[0].embedding), distance=Distance.COSINE),
+    )
+    logger.info(f"Collection '{file_id}' created successfully")
+
+
     json_chunk_file = os.path.join(path, f"jinaai_embeddings_{orig_filename}_{datetime.date.today().strftime('%Y%m%d')}.json")
     logger.info(f"Saving chunks with embeddings to {json_chunk_file}")
     with open(json_chunk_file, "w", encoding="utf-8") as json_file:
@@ -71,7 +80,8 @@ if __name__ == "__main__":
 
     point_structs = [chunk.to_qdrant_point_struct(filename=json_chunk_file) for chunk in chunks_with_embeddings]
     operation_info = qdrant_client.upsert(
-        collection_name="9d277797-a704-406c-bd99-a9803d0cf8f5",
+        collection_name=file_id,
         wait=True,
         points=point_structs
     )
+    logger.info(f"upsert data output: {operation_info}")
